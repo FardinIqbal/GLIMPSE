@@ -879,6 +879,10 @@ tbody tr:hover {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
   .bottom-sheet {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
