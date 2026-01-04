@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Use relative URLs for API routes (Next.js API routes)
+const API_URL = "";
 import { TargetSelector } from "@/components/controls/TargetSelector";
 import { TransmissionSpectrum } from "@/components/views/TransmissionSpectrum";
 import { Spectrogram } from "@/components/views/Spectrogram";

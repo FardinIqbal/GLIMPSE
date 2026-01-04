@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useBreakpoint } from "@/hooks/useMediaQuery";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Use relative URLs for API routes (Next.js API routes)
+const API_URL = "";
 
 interface Target {
   name: string;
