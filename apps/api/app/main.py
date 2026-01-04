@@ -35,6 +35,16 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+async def root():
+    return {
+        "name": "GLIMPSE API",
+        "description": "JWST Transit Spectroscopy API",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
