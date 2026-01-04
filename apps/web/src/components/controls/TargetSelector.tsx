@@ -105,8 +105,8 @@ export function TargetSelector({ onSelect }: TargetSelectorProps) {
       </div>
 
       {/* Search and Filters */}
-      <div className="space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-4 mb-6 sm:mb-8">
-        <div role="search">
+      <div className="space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-4 mb-6 sm:mb-8 overflow-hidden">
+        <div role="search" className="px-0">
           <label htmlFor="planet-search" className="sr-only">Search exoplanets</label>
           <input
             id="planet-search"
@@ -124,7 +124,8 @@ export function TargetSelector({ onSelect }: TargetSelectorProps) {
           />
         </div>
         {/* Horizontal scrollable filters on mobile */}
-        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide" role="group" aria-label="Filter by planet type">
+        <div className="w-full sm:w-auto overflow-hidden">
+          <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide" role="group" aria-label="Filter by planet type">
           <button
             onClick={() => setFilter(null)}
             className={`px-3 py-2 sm:py-1.5 text-sm sm:text-xs font-sans rounded-lg transition-colors whitespace-nowrap flex-shrink-0
@@ -150,6 +151,7 @@ export function TargetSelector({ onSelect }: TargetSelectorProps) {
               {isMobile ? category.split(" ")[0] : category} ({groupedTargets[category]?.length || 0})
             </button>
           ))}
+          </div>
         </div>
         <div id="search-results-status" className="sr-only" aria-live="polite">
           {searchQuery && `${filteredCount} planets found`}
