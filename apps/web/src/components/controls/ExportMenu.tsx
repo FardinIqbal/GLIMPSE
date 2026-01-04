@@ -8,6 +8,7 @@ interface ExportMenuProps {
   transitDepthErr?: number[];
   target: string;
   canvasRef?: React.RefObject<HTMLCanvasElement | null>;
+  compact?: boolean;
 }
 
 export function ExportMenu({
@@ -16,6 +17,7 @@ export function ExportMenu({
   transitDepthErr,
   target,
   canvasRef,
+  compact = false,
 }: ExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -86,16 +88,18 @@ export function ExportMenu({
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 text-xs font-sans
-                   border border-[var(--border)] rounded-lg
-                   hover:border-[var(--border-strong)] transition-colors"
+        className={`flex items-center gap-2 text-xs font-sans rounded-lg transition-colors
+                   ${compact
+                     ? "p-2 bg-[var(--accent)] text-white"
+                     : "px-3 py-1.5 border border-[var(--border)] hover:border-[var(--border-strong)]"}`}
+        aria-label="Export data"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg width={compact ? 16 : 14} height={compact ? 16 : 14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <polyline points="7 10 12 15 17 10" />
           <line x1="12" y1="15" x2="12" y2="3" />
         </svg>
-        Export
+        {!compact && "Export"}
       </button>
 
       {isOpen && (

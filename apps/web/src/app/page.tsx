@@ -463,20 +463,46 @@ export default function Home() {
         </AnimatePresence>
       </main>
 
-      {/* Mobile FAB for controls */}
+      {/* Mobile Bottom Toolbar */}
       {isMobile && data && !loading && (
         <>
-          <button
-            onClick={() => setMobileControlsOpen(true)}
-            className="fab"
-            aria-label="Open controls"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="1" />
-              <circle cx="12" cy="5" r="1" />
-              <circle cx="12" cy="19" r="1" />
-            </svg>
-          </button>
+          {/* Persistent Bottom Bar */}
+          <div className="fixed bottom-0 left-0 right-0 z-30 bg-[var(--paper)] border-t border-[var(--border)] safe-area-bottom">
+            <div className="flex items-center justify-between px-4 py-3">
+              {/* Planet Quick Info */}
+              {planetInfo && (
+                <div className="flex items-center gap-3 text-xs text-[var(--muted)] font-sans">
+                  {planetInfo.planet_radius && (
+                    <span>{planetInfo.planet_radius.toFixed(1)} R<sub>J</sub></span>
+                  )}
+                  {planetInfo.orbital_period && (
+                    <span>{planetInfo.orbital_period.toFixed(1)}d</span>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setMobileControlsOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--background-secondary)] text-sm font-medium"
+                  aria-label="Open controls"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 3v18M3 12h18" />
+                  </svg>
+                  Controls
+                </button>
+                <ExportMenu
+                  wavelengths={data.transmission_spectrum.wavelengths}
+                  transitDepth={data.transmission_spectrum.transit_depth_ppm}
+                  transitDepthErr={data.transmission_spectrum.transit_depth_err_ppm}
+                  target={data.target}
+                  compact
+                />
+              </div>
+            </div>
+          </div>
 
           {/* Mobile Bottom Sheet */}
           <div
@@ -503,7 +529,7 @@ export default function Home() {
 
               {/* Binning Control */}
               <div>
-                <h4 className="text-sm font-medium mb-2">Binning</h4>
+                <h4 className="text-sm font-medium mb-2">Spectral Binning</h4>
                 <BinningSlider
                   value={binSize}
                   onChange={setBinSize}
@@ -513,7 +539,7 @@ export default function Home() {
 
               {/* Molecular Bands */}
               <div>
-                <h4 className="text-sm font-medium mb-2">Molecular Bands</h4>
+                <h4 className="text-sm font-medium mb-2">Molecular Features</h4>
                 <MolecularBands
                   bands={molecularBands}
                   enabled={enabledBands}
@@ -526,16 +552,38 @@ export default function Home() {
                 />
               </div>
 
-              {/* Export */}
-              <div>
-                <h4 className="text-sm font-medium mb-2">Export</h4>
-                <ExportMenu
-                  wavelengths={data.transmission_spectrum.wavelengths}
-                  transitDepth={data.transmission_spectrum.transit_depth_ppm}
-                  transitDepthErr={data.transmission_spectrum.transit_depth_err_ppm}
-                  target={data.target}
-                />
-              </div>
+              {/* Planet Info */}
+              {planetInfo && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Planet Properties</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    {planetInfo.planet_radius && (
+                      <div className="p-2 rounded-lg bg-[var(--background-secondary)]">
+                        <span className="text-[var(--muted)] text-xs">Radius</span>
+                        <p className="font-medium">{planetInfo.planet_radius.toFixed(2)} R<sub>J</sub></p>
+                      </div>
+                    )}
+                    {planetInfo.orbital_period && (
+                      <div className="p-2 rounded-lg bg-[var(--background-secondary)]">
+                        <span className="text-[var(--muted)] text-xs">Period</span>
+                        <p className="font-medium">{planetInfo.orbital_period.toFixed(2)} days</p>
+                      </div>
+                    )}
+                    {planetInfo.distance && (
+                      <div className="p-2 rounded-lg bg-[var(--background-secondary)]">
+                        <span className="text-[var(--muted)] text-xs">Distance</span>
+                        <p className="font-medium">{planetInfo.distance.toFixed(0)} pc</p>
+                      </div>
+                    )}
+                    {planetInfo.equilibrium_temp && (
+                      <div className="p-2 rounded-lg bg-[var(--background-secondary)]">
+                        <span className="text-[var(--muted)] text-xs">Temperature</span>
+                        <p className="font-medium">{planetInfo.equilibrium_temp.toFixed(0)} K</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
