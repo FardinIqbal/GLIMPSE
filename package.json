@@ -1,13 +1,15 @@
 {
   "name": "astrospecvis",
   "version": "1.0.0",
-  "description": "Astronomical Spectral Visualization Tool",
+  "private": true,
   "scripts": {
-    "build": "tailwindcss -i ./astrospecvis/static/css/input.css -o ./astrospecvis/static/css/styles.css",
-    "watch": "tailwindcss -i ./astrospecvis/static/css/input.css -o ./astrospecvis/static/css/styles.css --watch"
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && source .venv/bin/activate && uvicorn app.main:app --reload --port 8000",
+    "build": "cd apps/web && npm run build",
+    "install:all": "npm install && cd apps/web && npm install && cd ../api && python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt"
   },
-  "dependencies": {},
   "devDependencies": {
-    "tailwindcss": "^3.3.3"
+    "concurrently": "^8.2.2"
   }
 }
