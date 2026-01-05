@@ -1,0 +1,18 @@
+# Python environment and cache
+apps/api/.venv/
+apps/api/venv/
+apps/api/__pycache__/
+apps/api/data/
+
+# Large files
+*.fits
+*.tar.gz
+*.zip
+
+# Node modules (handled by Vercel)
+node_modules/
+
+# Build artifacts
+.next/
+dist/
+build/
