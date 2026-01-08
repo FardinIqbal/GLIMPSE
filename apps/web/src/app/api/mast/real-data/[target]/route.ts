@@ -1,20 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const API_URL = process.env.PYTHON_API_URL || "https://astrospecvis.onrender.com";
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ target: string }> }
 ) {
   const { target } = await params;
 
-  // Real MAST data integration requires Python libraries (astroquery, astropy)
-  // which cannot run in Next.js Edge/Node runtime.
-  // For real JWST data, a separate Python API backend is needed.
-  return NextResponse.json(
-    {
-      error: "Real MAST data integration requires a Python backend. Please use Demo mode for simulated transit spectroscopy data.",
-      target: decodeURIComponent(target),
-      suggestion: "Switch to Demo mode to explore transit spectra with simulated data based on real planetary parameters.",
-    },
-    { status: 503 }
-  );
+  try {
+    const response = await fetch(
+      `${API_URL}/api/mast/real-data/${encodeURIComponent(target)}`,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return NextResponse.json(
+        { error: `Backend error: ${response.status}`, details: errorText },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error fetching from Python backend:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch from MAST backend. The backend may be starting up (cold start)." },
+      { status: 503 }
+    );
+  }
 }
