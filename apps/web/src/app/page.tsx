@@ -1,9 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-// Use relative URLs for API routes (Next.js API routes)
-const API_URL = "";
 import { TargetSelector } from "@/components/controls/TargetSelector";
 import { TransmissionSpectrum } from "@/components/views/TransmissionSpectrum";
 import { Spectrogram } from "@/components/views/Spectrogram";
@@ -90,10 +87,17 @@ export default function Home() {
   }, [selectedTarget]);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/mast/molecular-bands`)
-      .then((res) => res.json())
+    fetch("/api/mast/molecular-bands")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch molecular bands: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => setMolecularBands(data.bands))
-      .catch(console.error);
+      .catch((err) => {
+        console.error("Error loading molecular bands:", err);
+      });
   }, []);
 
   useEffect(() => {
@@ -103,19 +107,33 @@ export default function Home() {
     setError(null);
 
     // Fetch planet info
-    fetch(`${API_URL}/api/mast/exoplanet/${encodeURIComponent(selectedTarget)}`)
-      .then((res) => res.ok ? res.json() : null)
+    fetch(`/api/mast/exoplanet/${encodeURIComponent(selectedTarget)}`)
+      .then((res) => {
+        if (!res.ok) {
+          console.warn(`Failed to fetch planet info for ${selectedTarget}: ${res.status}`);
+          return null;
+        }
+        return res.json();
+      })
       .then((info) => setPlanetInfo(info))
-      .catch(() => setPlanetInfo(null));
+      .catch((err) => {
+        console.error(`Error loading planet info for ${selectedTarget}:`, err);
+        setPlanetInfo(null);
+      });
 
     // Fetch data based on source
     const endpoint = dataSource === "demo"
-      ? `${API_URL}/api/mast/demo-data/${encodeURIComponent(selectedTarget)}?bin_size=${binSize}`
-      : `${API_URL}/api/mast/real-data/${encodeURIComponent(selectedTarget.replace(" b", "").replace(" c", ""))}`;
+      ? `/api/mast/demo-data/${encodeURIComponent(selectedTarget)}?bin_size=${binSize}`
+      : `/api/mast/real-data/${encodeURIComponent(selectedTarget.replace(" b", "").replace(" c", ""))}`;
 
     fetch(endpoint)
       .then((res) => {
-        if (!res.ok) throw new Error("Data not available");
+        if (!res.ok) {
+          const errorText = res.status === 503 
+            ? "Real data not available. Try demo mode or select a different target."
+            : `Failed to load data: ${res.status} ${res.statusText}`;
+          throw new Error(errorText);
+        }
         return res.json();
       })
       .then((data) => {
@@ -124,10 +142,10 @@ export default function Home() {
         announce(`Loaded data for ${selectedTarget}. Transmission spectrum is now displayed.`);
       })
       .catch((err) => {
-        console.error(err);
-        setError(dataSource === "real"
+        console.error(`Error loading data for ${selectedTarget}:`, err);
+        setError(err.message || (dataSource === "real"
           ? "Real data not available. Try demo mode or select a different target."
-          : "Failed to load data.");
+          : "Failed to load data."));
         setLoading(false);
       });
   }, [selectedTarget, dataSource, binSize]);
