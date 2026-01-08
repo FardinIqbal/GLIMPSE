@@ -4,9 +4,6 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useBreakpoint } from "@/hooks/useMediaQuery";
 
-// Use relative URLs for API routes (Next.js API routes)
-const API_URL = "";
-
 interface Target {
   name: string;
   search: string;
@@ -31,18 +28,33 @@ const TYPE_ORDER = ["Gas Giants", "Sub-Neptunes", "Rocky Planets"];
 export function TargetSelector({ onSelect }: TargetSelectorProps) {
   const [targets, setTargets] = useState<Target[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { isMobile } = useBreakpoint();
 
   useEffect(() => {
-    fetch(`${API_URL}/api/mast/targets`)
-      .then((res) => res.json())
+    fetch("/api/mast/targets")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch targets: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
+      })
       .then((data) => {
+        if (!data || !data.targets) {
+          throw new Error("Invalid response format: missing targets");
+        }
         setTargets(data.targets);
         setLoading(false);
+        setError(null);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("Error loading exoplanet targets:", err);
+        setError(err.message || "Failed to load exoplanet data");
+        setLoading(false);
+        setTargets([]);
+      });
   }, []);
 
   const groupedTargets = useMemo(() => {
@@ -83,7 +95,48 @@ export function TargetSelector({ onSelect }: TargetSelectorProps) {
   if (loading) {
     return (
       <div className="text-center py-16">
-        <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mx-auto" />
+        <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin mx-auto" aria-label="Loading exoplanets" />
+        <p className="mt-4 text-sm text-[var(--muted)] font-sans">Loading exoplanet catalog...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-16">
+        <div className="max-w-md mx-auto">
+          <p className="text-red-500 mb-4 font-sans">{error}</p>
+          <button
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              fetch("/api/mast/targets")
+                .then((res) => {
+                  if (!res.ok) {
+                    throw new Error(`Failed to fetch targets: ${res.status} ${res.statusText}`);
+                  }
+                  return res.json();
+                })
+                .then((data) => {
+                  if (!data || !data.targets) {
+                    throw new Error("Invalid response format: missing targets");
+                  }
+                  setTargets(data.targets);
+                  setLoading(false);
+                  setError(null);
+                })
+                .catch((err) => {
+                  console.error("Error loading exoplanet targets:", err);
+                  setError(err.message || "Failed to load exoplanet data");
+                  setLoading(false);
+                  setTargets([]);
+                });
+            }}
+            className="px-4 py-2 rounded-lg bg-[var(--accent)] text-white font-sans hover:opacity-90 transition-opacity"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
