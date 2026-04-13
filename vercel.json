@@ -1,4 +1,5 @@
 {
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
   "buildCommand": "cd apps/web && npm run build",
   "outputDirectory": "apps/web/.next",
   "installCommand": "cd apps/web && npm install",
